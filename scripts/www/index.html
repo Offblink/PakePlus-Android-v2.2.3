@@ -5,491 +5,649 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>画图大师 - 手机画图应用</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            touch-action: manipulation;
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        touch-action: manipulation;
+    }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: #333;
+        height: 100vh;
+        overflow: hidden;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    
+    .app-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    header {
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 10px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+        flex-shrink: 0;
+    }
+    
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .logo i {
+        color: #6a11cb;
+        font-size: 20px;
+    }
+    
+    .logo h1 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+    }
+    
+    .app-controls {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .control-btn {
+        background: #6a11cb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .control-btn:hover {
+        background: #5a0db0;
+    }
+    
+    .control-btn:active {
+        transform: scale(0.95);
+    }
+    
+    .control-btn.save-btn {
+        background: #2575fc;
+    }
+    
+    .control-btn.undo-btn {
+        background: #ff9800;
+    }
+    
+    .control-btn.redo-btn {
+        background: #4caf50;
+    }
+    
+    .control-btn.clear-btn {
+        background: #f44336;
+    }
+    
+    .main-content {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+    
+    .toolbar {
+        width: 100px; /* 增加到100px */
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        flex-direction: column;
+        padding: 12px 8px; /* 增加内边距 */
+        gap: 15px;
+        overflow-y: auto;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+        flex-shrink: 0;
+    }
+    
+    .tool-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .tool-title {
+        font-size: 13px; /* 增加字体大小 */
+        color: #666;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 4px; /* 增加间距 */
+    }
+    
+    .tool-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 0;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .tool-option:hover {
+        background-color: rgba(106, 17, 203, 0.1);
+    }
+    
+    .tool-option.active {
+        background-color: rgba(106, 17, 203, 0.2);
+    }
+    
+    .tool-icon {
+        font-size: 22px; /* 增加图标大小 */
+        color: #555;
+        margin-bottom: 4px;
+    }
+    
+    .tool-option.active .tool-icon {
+        color: #6a11cb;
+    }
+    
+    .tool-name {
+        font-size: 12px; /* 增加字体大小 */
+        color: #555;
+    }
+    
+    .tool-option.active .tool-name {
+        color: #6a11cb;
+        font-weight: 600;
+    }
+    
+    .canvas-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        overflow: auto;
+        min-width: 0;
+    }
+    
+    .canvas-wrapper {
+        position: relative;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    #drawing-canvas {
+        display: block;
+        background-color: transparent;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+    }
+    
+    .color-palette {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 0;
+    }
+    
+    .color-option {
+        width: 30px; /* 增加颜色选项大小 */
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.2s;
+    }
+    
+    .color-option:hover {
+        transform: scale(1.1);
+    }
+    
+    .color-option.active {
+        border-color: #333;
+        box-shadow: 0 0 0 2px white;
+    }
+    
+    .textbox {
+        position: absolute;
+        border: 2px dashed #6a11cb;
+        background-color: transparent;
+        min-width: 100px;
+        min-height: 40px;
+        overflow: hidden;
+        cursor: move;
+        transform-origin: center center;
+    }
+    
+    .textbox.active {
+        border-color: #ff3b30;
+        z-index: 100;
+    }
+    
+    .textbox-content {
+        width: 100%;
+        height: 100%;
+        padding: 5px;
+        font-family: Arial, sans-serif;
+        color: #333;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        resize: none;
+        overflow: hidden;
+        pointer-events: auto;
+    }
+    
+    .textbox-delete {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background-color: #ff3b30;
+        color: white;
+        border-radius: 50%;
+        top: 5px;
+        right: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 101;
+    }
+    
+    .textbox-delete:hover {
+        background-color: #d32f2f;
+    }
+    
+    .tool-details {
+        width: 100px; /* 增加到100px，与左边栏对称 */
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        flex-direction: column;
+        padding: 12px 8px; /* 增加内边距 */
+        gap: 15px;
+        overflow-y: auto;
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+        flex-shrink: 0;
+    }
+    
+    .tool-slider-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .slider-label {
+        font-size: 13px; /* 增加字体大小 */
+        color: #666;
+        text-align: center;
+    }
+    
+    .slider-value {
+        font-size: 14px; /* 增加字体大小 */
+        font-weight: 600;
+        color: #6a11cb;
+    }
+    
+    input[type="range"] {
+        width: 100%;
+        height: 4px;
+        -webkit-appearance: none;
+        background: #ddd;
+        border-radius: 5px;
+        outline: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #6a11cb;
+        cursor: pointer;
+    }
+    
+    .canvas-size-btn {
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 6px;
+        font-size: 13px; /* 增加字体大小 */
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .canvas-size-btn:hover {
+        background: #3d8b40;
+    }
+    
+    .textbox-controls {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .textbox-control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .textbox-control-title {
+        font-size: 13px; /* 增加字体大小 */
+        color: #666;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .textbox-control-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .textbox-control-value {
+        font-size: 14px; /* 增加字体大小 */
+        font-weight: 600;
+        color: #6a11cb;
+        min-width: 40px; /* 增加最小宽度 */
+        text-align: center;
+    }
+    
+    .textbox-control-btn {
+        width: 30px; /* 增加按钮大小 */
+        height: 30px;
+        background: #6a11cb;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .textbox-control-btn:hover {
+        background: #5a0db0;
+    }
+    
+    .textbox-control-btn:active {
+        transform: scale(0.9);
+    }
+    
+    .position-controls {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        gap: 5px;
+        justify-items: center;
+        align-items: center;
+    }
+    
+    .position-btn {
+        width: 26px; /* 增加按钮大小 */
+        height: 26px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px; /* 增加字体大小 */
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .position-btn.up {
+        grid-column: 2;
+        grid-row: 1;
+    }
+    
+    .position-btn.down {
+        grid-column: 2;
+        grid-row: 3;
+    }
+    
+    .position-btn.left {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    
+    .position-btn.right {
+        grid-column: 3;
+        grid-row: 2;
+    }
+    
+    .rotation-control {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .rotation-joystick {
+        position: relative;
+        width: 80px; /* 增加摇杆大小 */
+        height: 80px;
+        border-radius: 50%;
+        background: #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .rotation-indicator {
+        position: absolute;
+        width: 60px; /* 增加指示器大小 */
+        height: 60px;
+        border-radius: 50%;
+        background: #6a11cb;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px; /* 增加字体大小 */
+        cursor: pointer;
+    }
+    
+    .rotation-btn {
+        position: absolute;
+        width: 26px; /* 增加按钮大小 */
+        height: 26px;
+        background: #4caf50;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px; /* 增加字体大小 */
+        cursor: pointer;
+    }
+    
+    .rotation-btn.clockwise {
+        right: -5px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .rotation-btn.counter-clockwise {
+        left: -5px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        z-index: 1000;
+        display: none;
+    }
+    
+    .notification.show {
+        display: block;
+        animation: fadeInOut 2s ease-in-out;
+    }
+    
+    @keyframes fadeInOut {
+        0% { opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+    
+    @media (max-width: 768px) {
+        .toolbar, .tool-details {
+            width: 85px; /* 调整中等屏幕宽度 */
+            padding: 10px 6px;
         }
         
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: #333;
-            height: 100vh;
-            overflow: hidden;
-            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-        }
-        
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            max-width: 100%;
-            overflow: hidden;
-        }
-        
-        header {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 10;
-            flex-shrink: 0;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .logo i {
-            color: #6a11cb;
-            font-size: 20px;
+        .color-option {
+            width: 26px;
+            height: 26px;
         }
         
         .logo h1 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #333;
-        }
-        
-        .app-controls {
-            display: flex;
-            gap: 8px;
+            font-size: 15px;
         }
         
         .control-btn {
-            background: #6a11cb;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 12px;
+            padding: 7px 9px;
+            font-size: 12px;
+        }
+        
+        .tool-title {
+            font-size: 12px;
+        }
+        
+        .tool-name {
+            font-size: 11px;
+        }
+        
+        .textbox-control-btn {
+            width: 26px;
+            height: 26px;
+        }
+        
+        .position-btn {
+            width: 22px;
+            height: 22px;
+        }
+        
+        .rotation-joystick {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .rotation-indicator {
+            width: 50px;
+            height: 50px;
             font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            transition: all 0.2s;
         }
         
-        .control-btn:hover {
-            background: #5a0db0;
+        .rotation-btn {
+            width: 22px;
+            height: 22px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .toolbar, .tool-details {
+            width: 70px; /* 调整小屏幕宽度 */
+            padding: 8px 4px;
         }
         
-        .control-btn:active {
-            transform: scale(0.95);
+        .color-option {
+            width: 22px;
+            height: 22px;
         }
         
-        .control-btn.save-btn {
-            background: #2575fc;
+        .logo h1 {
+            display: none;
         }
         
-        .control-btn.undo-btn {
-            background: #ff9800;
+        .control-btn span {
+            display: none;
         }
         
-        .control-btn.redo-btn {
-            background: #4caf50;
-        }
-        
-        .control-btn.clear-btn {
-            background: #f44336;
-        }
-        
-        .main-content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-        
-        .toolbar {
-            width: 60px;
-            background-color: rgba(255, 255, 255, 0.9);
-            display: flex;
-            flex-direction: column;
-            padding: 10px 5px;
-            gap: 15px;
-            overflow-y: auto;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-            flex-shrink: 0;
-        }
-        
-        .tool-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .control-btn {
+            padding: 8px;
         }
         
         .tool-title {
             font-size: 11px;
-            color: #666;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 3px;
-        }
-        
-        .tool-option {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 6px 0;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .tool-option:hover {
-            background-color: rgba(106, 17, 203, 0.1);
-        }
-        
-        .tool-option.active {
-            background-color: rgba(106, 17, 203, 0.2);
-        }
-        
-        .tool-icon {
-            font-size: 18px;
-            color: #555;
-            margin-bottom: 3px;
-        }
-        
-        .tool-option.active .tool-icon {
-            color: #6a11cb;
         }
         
         .tool-name {
             font-size: 10px;
-            color: #555;
         }
         
-        .tool-option.active .tool-name {
-            color: #6a11cb;
-            font-weight: 600;
+        .textbox-control-btn {
+            width: 22px;
+            height: 22px;
+            font-size: 10px;
         }
         
-        .canvas-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            overflow: auto;
-            min-width: 0;
+        .textbox-control-value {
+            font-size: 12px;
+            min-width: 35px;
         }
         
-        .canvas-wrapper {
-            position: relative;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        
-        #drawing-canvas {
-            display: block;
-            background-color: transparent;
-            width: 100%;
-            height: 100%;
-            touch-action: none;
-        }
-        
-        .color-palette {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 6px;
-            padding: 5px;
-        }
-        
-        .color-option {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-        }
-        
-        .color-option:hover {
-            transform: scale(1.1);
-        }
-        
-        .color-option.active {
-            border-color: #333;
-            box-shadow: 0 0 0 2px white;
-        }
-        
-        .textbox {
-            position: absolute;
-            border: 2px dashed #6a11cb;
-            background-color: transparent;
-            min-width: 100px;
-            min-height: 40px;
-            resize: both;
-            overflow: hidden;
-            cursor: move;
-        }
-        
-        .textbox.active {
-            border-color: #ff3b30;
-            z-index: 100;
-        }
-        
-        .textbox-content {
-            width: 100%;
-            height: 100%;
-            padding: 5px;
-            font-family: Arial, sans-serif;
-            color: #333;
-            background-color: transparent;
-            border: none;
-            outline: none;
-            resize: none;
-            overflow: hidden;
-        }
-        
-        /* 文本框调整大小手柄 */
-        .textbox-handle {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background-color: #6a11cb;
-            border-radius: 50%;
-        }
-        
-        /* 右下角调整大小手柄 */
-        .textbox-handle.resize-se {
-            bottom: -6px;
-            right: -6px;
-            cursor: nwse-resize;
-        }
-        
-        /* 左下角调整大小手柄 */
-        .textbox-handle.resize-sw {
-            bottom: -6px;
-            left: -6px;
-            cursor: nesw-resize;
-        }
-        
-        /* 右上角调整大小手柄 */
-        .textbox-handle.resize-ne {
-            top: -6px;
-            right: -6px;
-            cursor: nesw-resize;
-        }
-        
-        /* 左上角调整大小手柄 */
-        .textbox-handle.resize-nw {
-            top: -6px;
-            left: -6px;
-            cursor: nwse-resize;
-        }
-        
-        /* 右边调整大小手柄 */
-        .textbox-handle.resize-e {
-            top: 50%;
-            right: -6px;
-            margin-top: -6px;
-            cursor: ew-resize;
-        }
-        
-        /* 左边调整大小手柄 */
-        .textbox-handle.resize-w {
-            top: 50%;
-            left: -6px;
-            margin-top: -6px;
-            cursor: ew-resize;
-        }
-        
-        /* 上边调整大小手柄 */
-        .textbox-handle.resize-n {
-            top: -6px;
-            left: 50%;
-            margin-left: -6px;
-            cursor: ns-resize;
-        }
-        
-        /* 下边调整大小手柄 */
-        .textbox-handle.resize-s {
-            bottom: -6px;
-            left: 50%;
-            margin-left: -6px;
-            cursor: ns-resize;
-        }
-        
-        .textbox-delete {
-            position: absolute;
+        .position-btn {
             width: 20px;
             height: 20px;
-            background-color: #ff3b30;
-            color: white;
-            border-radius: 50%;
-            top: 5px;
-            right: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 101;
+            font-size: 10px;
         }
         
-        .textbox-delete:hover {
-            background-color: #d32f2f;
-        }
-        
-        .tool-details {
+        .rotation-joystick {
             width: 60px;
-            background-color: rgba(255, 255, 255, 0.9);
-            display: flex;
-            flex-direction: column;
-            padding: 10px 5px;
-            gap: 15px;
-            overflow-y: auto;
-            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
-            flex-shrink: 0;
+            height: 60px;
         }
         
-        .tool-slider-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .slider-label {
-            font-size: 11px;
-            color: #666;
-            text-align: center;
-        }
-        
-        .slider-value {
+        .rotation-indicator {
+            width: 45px;
+            height: 45px;
             font-size: 12px;
-            font-weight: 600;
-            color: #6a11cb;
         }
         
-        input[type="range"] {
-            width: 100%;
-            height: 4px;
-            -webkit-appearance: none;
-            background: #ddd;
-            border-radius: 5px;
-            outline: none;
+        .rotation-btn {
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
         }
-        
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #6a11cb;
-            cursor: pointer;
-        }
-        
-        .canvas-size-btn {
-            background: #4caf50;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 8px;
-            font-size: 11px;
-            cursor: pointer;
-            width: 100%;
-            text-align: center;
-        }
-        
-        .canvas-size-btn:hover {
-            background: #3d8b40;
-        }
-        
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            z-index: 1000;
-            display: none;
-        }
-        
-        .notification.show {
-            display: block;
-            animation: fadeInOut 2s ease-in-out;
-        }
-        
-        @keyframes fadeInOut {
-            0% { opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-        
-        @media (max-width: 768px) {
-            .toolbar, .tool-details {
-                width: 55px;
-                padding: 8px 4px;
-            }
-            
-            .color-option {
-                width: 22px;
-                height: 22px;
-            }
-            
-            .logo h1 {
-                font-size: 15px;
-            }
-            
-            .control-btn {
-                padding: 7px 9px;
-                font-size: 12px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .toolbar, .tool-details {
-                width: 50px;
-                padding: 6px 3px;
-            }
-            
-            .color-option {
-                width: 20px;
-                height: 20px;
-            }
-            
-            .logo h1 {
-                display: none;
-            }
-            
-            .control-btn span {
-                display: none;
-            }
-            
-            .control-btn {
-                padding: 8px;
-            }
-            
-            .tool-title {
-                font-size: 10px;
-            }
-            
-            .tool-name {
-                font-size: 9px;
-            }
-        }
-    </style>
+    }
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -576,6 +734,45 @@
                     </div>
                 </div>
                 
+                <div class="tool-group" id="textboxControls" class="textbox-controls">
+                    <div class="textbox-control-group">
+                        <div class="textbox-control-title">文本框控制</div>
+                        <div class="textbox-control-row">
+                            <span class="slider-label">宽度</span>
+                            <button class="textbox-control-btn" id="decreaseWidthBtn">-</button>
+                            <span class="textbox-control-value" id="widthValue">100</span>
+                            <button class="textbox-control-btn" id="increaseWidthBtn">+</button>
+                        </div>
+                        <div class="textbox-control-row">
+                            <span class="slider-label">高度</span>
+                            <button class="textbox-control-btn" id="decreaseHeightBtn">-</button>
+                            <span class="textbox-control-value" id="heightValue">40</span>
+                            <button class="textbox-control-btn" id="increaseHeightBtn">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="textbox-control-group">
+                        <div class="textbox-control-title">位置调整</div>
+                        <div class="position-controls">
+                            <button class="position-btn up" id="moveUpBtn">↑</button>
+                            <button class="position-btn left" id="moveLeftBtn">←</button>
+                            <button class="position-btn right" id="moveRightBtn">→</button>
+                            <button class="position-btn down" id="moveDownBtn">↓</button>
+                        </div>
+                    </div>
+                    
+                    <div class="textbox-control-group">
+                        <div class="textbox-control-title">旋转</div>
+                        <div class="rotation-control">
+                            <div class="rotation-joystick">
+                                <div class="rotation-indicator" id="rotationIndicator">0°</div>
+                                <button class="rotation-btn counter-clockwise" id="rotateCCWBtn">↺</button>
+                                <button class="rotation-btn clockwise" id="rotateCWBtn">↻</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="tool-group">
                     <div class="tool-title">画布缩放</div>
                     <button class="canvas-size-btn" id="increaseCanvasBtn">放大画布</button>
@@ -641,11 +838,9 @@
             let activeTextbox = null;
             let history = [];
             let historyIndex = -1;
-            let isResizingTextbox = false;
             let isDraggingTextbox = false;
             let dragOffsetX = 0;
             let dragOffsetY = 0;
-            let resizeDirection = null;
             
             // 初始化Canvas
             resizeCanvas();
@@ -671,7 +866,7 @@
                     fontSize: box.fontSize,
                     color: box.color,
                     content: box.content,
-                    aspectRatio: box.aspectRatio || (box.width / box.height)
+                    rotation: box.rotation || 0
                 }));
                 
                 history.push({
@@ -708,7 +903,7 @@
                         fontSize: box.fontSize,
                         color: box.color,
                         content: box.content,
-                        aspectRatio: box.aspectRatio || (box.width / box.height)
+                        rotation: box.rotation || 0
                     }));
                     
                     // 重新渲染文本框
@@ -741,11 +936,16 @@
                     // 显示对应的工具选项
                     document.getElementById('brushOptions').style.display = 'none';
                     document.getElementById('textOptions').style.display = 'none';
+                    document.getElementById('textboxControls').style.display = 'none';
                     
                     if (currentTool === 'brush') {
                         document.getElementById('brushOptions').style.display = 'block';
                     } else if (currentTool === 'text') {
                         document.getElementById('textOptions').style.display = 'block';
+                        // 如果当前有活动文本框，显示文本框控制
+                        if (activeTextbox) {
+                            document.getElementById('textboxControls').style.display = 'flex';
+                        }
                     } else if (currentTool === 'fill') {
                         // 填充工具没有额外的设置
                     }
@@ -798,6 +998,9 @@
                             // 更新DOM
                             activeTextbox.style.width = newWidth + 'px';
                             activeTextbox.style.height = newHeight + 'px';
+                            
+                            // 更新控制面板的值
+                            updateTextboxControlValues();
                         }
                     }
                 }
@@ -946,34 +1149,15 @@
                 textbox.id = textboxId;
                 textbox.style.left = (x - 50) + 'px';
                 textbox.style.top = (y - 20) + 'px';
-                textbox.style.fontSize = fontSize + 'px';
-                textbox.style.color = currentColor;
                 textbox.style.width = '100px';
                 textbox.style.height = '40px';
+                textbox.style.transform = 'rotate(0deg)';
                 
                 const textarea = document.createElement('textarea');
                 textarea.className = 'textbox-content';
                 textarea.placeholder = '输入文字...';
                 textarea.style.color = currentColor;
                 textarea.style.fontSize = fontSize + 'px';
-                
-                // 创建所有调整大小手柄
-                const handles = [
-                    {class: 'resize-nw', cursor: 'nwse-resize'},
-                    {class: 'resize-n', cursor: 'ns-resize'},
-                    {class: 'resize-ne', cursor: 'nesw-resize'},
-                    {class: 'resize-w', cursor: 'ew-resize'},
-                    {class: 'resize-e', cursor: 'ew-resize'},
-                    {class: 'resize-sw', cursor: 'nesw-resize'},
-                    {class: 'resize-s', cursor: 'ns-resize'},
-                    {class: 'resize-se', cursor: 'nwse-resize'}
-                ];
-                
-                handles.forEach(handleInfo => {
-                    const handle = document.createElement('div');
-                    handle.className = `textbox-handle ${handleInfo.class}`;
-                    textbox.appendChild(handle);
-                });
                 
                 const deleteBtn = document.createElement('div');
                 deleteBtn.className = 'textbox-delete';
@@ -997,8 +1181,11 @@
                     fontSize: fontSize,
                     color: currentColor,
                     content: '',
-                    aspectRatio: 100/40 // 初始宽高比
+                    rotation: 0
                 });
+                
+                // 更新控制面板的值
+                updateTextboxControlValues();
                 
                 // 聚焦文本框
                 textarea.focus();
@@ -1015,18 +1202,130 @@
                     deleteTextbox(textbox);
                 });
                 
-                // 文本框拖动
-                textbox.addEventListener('mousedown', function(e) {
-                    // 如果点击的是调整大小手柄，则不进行拖动
-                    if (e.target.classList.contains('textbox-handle')) {
-                        return;
-                    }
-                    
+				// 在文本框的mousedown事件处理中，修改坐标计算逻辑
+				// 查找文本框拖动事件处理函数，替换为以下代码：
+
+				// 文本框拖动
+				textbox.addEventListener('mousedown', function(e) {
+					if (e.target === deleteBtn) return;
+					
+					isDraggingTextbox = true;
+					
+					// 修复：使用正确的坐标计算
+					// 获取文本框相对于canvas-wrapper的位置
+					const rect = textbox.getBoundingClientRect();
+					const canvasRect = document.querySelector('.canvas-wrapper').getBoundingClientRect();
+					
+					// 计算鼠标在文本框内部的偏移量（相对于画布）
+					dragOffsetX = e.clientX - canvasRect.left - textbox.offsetLeft;
+					dragOffsetY = e.clientY - canvasRect.top - textbox.offsetTop;
+					
+					// 激活被拖动的文本框
+					activateTextbox(textbox);
+					
+					function drag(e) {
+						if (!isDraggingTextbox) return;
+						
+						// 修复：重新获取画布位置，确保准确性
+						const canvasRect = document.querySelector('.canvas-wrapper').getBoundingClientRect();
+						const newX = e.clientX - canvasRect.left - dragOffsetX;
+						const newY = e.clientY - canvasRect.top - dragOffsetY;
+						
+						// 限制在画布内
+						const maxX = canvas.width - textbox.offsetWidth;
+						const maxY = canvas.height - textbox.offsetHeight;
+						
+						textbox.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
+						textbox.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
+						
+						// 更新文本框数组中保存的位置
+						updateTextboxPositionInArray(
+							textboxId, 
+							parseInt(textbox.style.left), 
+							parseInt(textbox.style.top)
+						);
+						
+						// 更新控制面板
+						updateTextboxControlValues();
+					}
+					
+					function stopDrag() {
+						isDraggingTextbox = false;
+						document.removeEventListener('mousemove', drag);
+						document.removeEventListener('mouseup', stopDrag);
+						document.removeEventListener('mouseleave', stopDrag);
+						
+						// 保存状态
+						saveState();
+					}
+					
+					document.addEventListener('mousemove', drag);
+					document.addEventListener('mouseup', stopDrag);
+					document.addEventListener('mouseleave', stopDrag);
+				});
+
+				// 同样修复触摸事件
+				textbox.addEventListener('touchstart', function(e) {
+					e.preventDefault();
+					if (e.target === deleteBtn) return;
+					
+					isDraggingTextbox = true;
+					const touch = e.touches[0];
+					
+					// 修复：使用正确的坐标计算
+					const rect = textbox.getBoundingClientRect();
+					const canvasRect = document.querySelector('.canvas-wrapper').getBoundingClientRect();
+					
+					dragOffsetX = touch.clientX - canvasRect.left - textbox.offsetLeft;
+					dragOffsetY = touch.clientY - canvasRect.top - textbox.offsetTop;
+					
+					activateTextbox(textbox);
+					
+					function drag(e) {
+						if (!isDraggingTextbox) return;
+						
+						const touch = e.touches[0];
+						const canvasRect = document.querySelector('.canvas-wrapper').getBoundingClientRect();
+						const newX = touch.clientX - canvasRect.left - dragOffsetX;
+						const newY = touch.clientY - canvasRect.top - dragOffsetY;
+						
+						const maxX = canvas.width - textbox.offsetWidth;
+						const maxY = canvas.height - textbox.offsetHeight;
+						
+						textbox.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
+						textbox.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
+						
+						updateTextboxPositionInArray(
+							textboxId, 
+							parseInt(textbox.style.left), 
+							parseInt(textbox.style.top)
+						);
+						
+						updateTextboxControlValues();
+					}
+					
+					function stopDrag() {
+						isDraggingTextbox = false;
+						document.removeEventListener('touchmove', drag);
+						document.removeEventListener('touchend', stopDrag);
+						
+						saveState();
+					}
+					
+					document.addEventListener('touchmove', drag, { passive: false });
+					document.addEventListener('touchend', stopDrag);
+				}, { passive: false });
+
+                // 触摸事件支持
+                textbox.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
                     if (e.target === deleteBtn) return;
                     
                     isDraggingTextbox = true;
-                    dragOffsetX = e.clientX - textbox.offsetLeft;
-                    dragOffsetY = e.clientY - textbox.offsetTop;
+                    const touch = e.touches[0];
+                    const rect = textbox.getBoundingClientRect();
+                    dragOffsetX = touch.clientX - rect.left;
+                    dragOffsetY = touch.clientY - rect.top;
                     
                     // 激活被拖动的文本框
                     activateTextbox(textbox);
@@ -1034,8 +1333,9 @@
                     function drag(e) {
                         if (!isDraggingTextbox) return;
                         
-                        const newX = e.clientX - dragOffsetX;
-                        const newY = e.clientY - dragOffsetY;
+                        const touch = e.touches[0];
+                        const newX = touch.clientX - dragOffsetX;
+                        const newY = touch.clientY - dragOffsetY;
                         
                         // 限制在画布内
                         const maxX = canvas.width - textbox.offsetWidth;
@@ -1050,119 +1350,23 @@
                             parseInt(textbox.style.left), 
                             parseInt(textbox.style.top)
                         );
+                        
+                        // 更新控制面板
+                        updateTextboxControlValues();
                     }
                     
                     function stopDrag() {
                         isDraggingTextbox = false;
-                        document.removeEventListener('mousemove', drag);
-                        document.removeEventListener('mouseup', stopDrag);
-                        document.removeEventListener('mouseleave', stopDrag);
+                        document.removeEventListener('touchmove', drag);
+                        document.removeEventListener('touchend', stopDrag);
                         
                         // 保存状态
                         saveState();
                     }
                     
-                    document.addEventListener('mousemove', drag);
-                    document.addEventListener('mouseup', stopDrag);
-                    document.addEventListener('mouseleave', stopDrag);
-                });
-                
-                // 文本框调整大小
-                document.querySelectorAll(`#${textboxId} .textbox-handle`).forEach(handle => {
-                    handle.addEventListener('mousedown', function(e) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        
-                        isResizingTextbox = true;
-                        resizeDirection = this.className.split(' ')[1]; // 获取调整方向
-                        
-                        const startX = e.clientX;
-                        const startY = e.clientY;
-                        const startLeft = textbox.offsetLeft;
-                        const startTop = textbox.offsetTop;
-                        const startWidth = textbox.offsetWidth;
-                        const startHeight = textbox.offsetHeight;
-                        
-                        function resize(e) {
-                            if (!isResizingTextbox) return;
-                            
-                            const dx = e.clientX - startX;
-                            const dy = e.clientY - startY;
-                            
-                            let newLeft = startLeft;
-                            let newTop = startTop;
-                            let newWidth = startWidth;
-                            let newHeight = startHeight;
-                            
-                            // 根据调整方向计算新的位置和尺寸
-                            switch(resizeDirection) {
-                                case 'resize-nw': // 左上角
-                                    newLeft = startLeft + dx;
-                                    newTop = startTop + dy;
-                                    newWidth = startWidth - dx;
-                                    newHeight = startHeight - dy;
-                                    break;
-                                case 'resize-n': // 上边
-                                    newTop = startTop + dy;
-                                    newHeight = startHeight - dy;
-                                    break;
-                                case 'resize-ne': // 右上角
-                                    newTop = startTop + dy;
-                                    newWidth = startWidth + dx;
-                                    newHeight = startHeight - dy;
-                                    break;
-                                case 'resize-w': // 左边
-                                    newLeft = startLeft + dx;
-                                    newWidth = startWidth - dx;
-                                    break;
-                                case 'resize-e': // 右边
-                                    newWidth = startWidth + dx;
-                                    break;
-                                case 'resize-sw': // 左下角
-                                    newLeft = startLeft + dx;
-                                    newWidth = startWidth - dx;
-                                    newHeight = startHeight + dy;
-                                    break;
-                                case 'resize-s': // 下边
-                                    newHeight = startHeight + dy;
-                                    break;
-                                case 'resize-se': // 右下角
-                                    newWidth = startWidth + dx;
-                                    newHeight = startHeight + dy;
-                                    break;
-                            }
-                            
-                            // 确保最小尺寸
-                            if (newWidth < 50) newWidth = 50;
-                            if (newHeight < 30) newHeight = 30;
-                            
-                            // 应用新的位置和尺寸
-                            textbox.style.left = newLeft + 'px';
-                            textbox.style.top = newTop + 'px';
-                            textbox.style.width = newWidth + 'px';
-                            textbox.style.height = newHeight + 'px';
-                            
-                            // 更新文本框数组中保存的尺寸和位置
-                            updateTextboxSizeInArray(textboxId, newWidth, newHeight);
-                            updateTextboxPositionInArray(textboxId, newLeft, newTop);
-                        }
-                        
-                        function stopResize() {
-                            isResizingTextbox = false;
-                            resizeDirection = null;
-                            document.removeEventListener('mousemove', resize);
-                            document.removeEventListener('mouseup', stopResize);
-                            document.removeEventListener('mouseleave', stopResize);
-                            
-                            // 保存状态
-                            saveState();
-                        }
-                        
-                        document.addEventListener('mousemove', resize);
-                        document.addEventListener('mouseup', stopResize);
-                        document.addEventListener('mouseleave', stopResize);
-                    });
-                });
+                    document.addEventListener('touchmove', drag, { passive: false });
+                    document.addEventListener('touchend', stopDrag);
+                }, { passive: false });
                 
                 // 点击外部时取消激活文本框
                 document.addEventListener('click', function(e) {
@@ -1190,6 +1394,8 @@
                 // 如果删除的是活动文本框，清空活动文本框
                 if (activeTextbox && activeTextbox.id === textboxId) {
                     activeTextbox = null;
+                    // 隐藏文本框控制面板
+                    document.getElementById('textboxControls').style.display = 'none';
                 }
                 
                 saveState();
@@ -1207,6 +1413,9 @@
                 // 更新文本框数组中保存的尺寸
                 const textboxId = textbox.id;
                 updateTextboxSizeInArray(textboxId, textbox.offsetWidth, textbox.offsetHeight);
+                
+                // 更新控制面板
+                updateTextboxControlValues();
             }
             
             // 激活文本框
@@ -1214,6 +1423,11 @@
                 deactivateAllTextboxes();
                 textbox.classList.add('active');
                 activeTextbox = textbox;
+                
+                // 显示文本框控制面板
+                if (currentTool === 'text') {
+                    document.getElementById('textboxControls').style.display = 'flex';
+                }
                 
                 // 更新字体大小滑块
                 const textarea = textbox.querySelector('.textbox-content');
@@ -1232,6 +1446,9 @@
                         color.classList.remove('active');
                     }
                 });
+                
+                // 更新控制面板的值
+                updateTextboxControlValues();
             }
             
             // 取消激活所有文本框
@@ -1240,6 +1457,9 @@
                     box.classList.remove('active');
                 });
                 activeTextbox = null;
+                
+                // 隐藏文本框控制面板
+                document.getElementById('textboxControls').style.display = 'none';
             }
             
             // 更新文本框数组中的内容
@@ -1256,7 +1476,6 @@
                 if (index !== -1) {
                     textboxes[index].width = width;
                     textboxes[index].height = height;
-                    textboxes[index].aspectRatio = width / height;
                 }
             }
             
@@ -1277,6 +1496,28 @@
                 }
             }
             
+            // 更新文本框数组中的旋转角度
+            function updateTextboxRotationInArray(id, rotation) {
+                const index = textboxes.findIndex(box => box.id === id);
+                if (index !== -1) {
+                    textboxes[index].rotation = rotation;
+                }
+            }
+            
+            // 更新文本框控制面板的值
+            function updateTextboxControlValues() {
+                if (!activeTextbox) return;
+                
+                const textboxId = activeTextbox.id;
+                const index = textboxes.findIndex(box => box.id === textboxId);
+                if (index !== -1) {
+                    const box = textboxes[index];
+                    document.getElementById('widthValue').textContent = Math.round(box.width);
+                    document.getElementById('heightValue').textContent = Math.round(box.height);
+                    document.getElementById('rotationIndicator').textContent = Math.round(box.rotation) + '°';
+                }
+            }
+            
             // 渲染所有文本框
             function renderTextboxes() {
                 // 移除所有现有的文本框
@@ -1291,31 +1532,13 @@
                     textbox.style.top = box.y + 'px';
                     textbox.style.width = box.width + 'px';
                     textbox.style.height = box.height + 'px';
-                    textbox.style.fontSize = box.fontSize + 'px';
+                    textbox.style.transform = `rotate(${box.rotation}deg)`;
                     
                     const textarea = document.createElement('textarea');
                     textarea.className = 'textbox-content';
                     textarea.value = box.content;
                     textarea.style.color = box.color;
                     textarea.style.fontSize = box.fontSize + 'px';
-                    
-                    // 创建所有调整大小手柄
-                    const handles = [
-                        {class: 'resize-nw', cursor: 'nwse-resize'},
-                        {class: 'resize-n', cursor: 'ns-resize'},
-                        {class: 'resize-ne', cursor: 'nesw-resize'},
-                        {class: 'resize-w', cursor: 'ew-resize'},
-                        {class: 'resize-e', cursor: 'ew-resize'},
-                        {class: 'resize-sw', cursor: 'nesw-resize'},
-                        {class: 'resize-s', cursor: 'ns-resize'},
-                        {class: 'resize-se', cursor: 'nwse-resize'}
-                    ];
-                    
-                    handles.forEach(handleInfo => {
-                        const handle = document.createElement('div');
-                        handle.className = `textbox-handle ${handleInfo.class}`;
-                        textbox.appendChild(handle);
-                    });
                     
                     const deleteBtn = document.createElement('div');
                     deleteBtn.className = 'textbox-delete';
@@ -1340,16 +1563,12 @@
                     
                     // 文本框拖动事件
                     textbox.addEventListener('mousedown', function(e) {
-                        // 如果点击的是调整大小手柄，则不进行拖动
-                        if (e.target.classList.contains('textbox-handle')) {
-                            return;
-                        }
-                        
                         if (e.target === deleteBtn) return;
                         
                         isDraggingTextbox = true;
-                        dragOffsetX = e.clientX - textbox.offsetLeft;
-                        dragOffsetY = e.clientY - textbox.offsetTop;
+                        const rect = textbox.getBoundingClientRect();
+                        dragOffsetX = e.clientX - rect.left;
+                        dragOffsetY = e.clientY - rect.top;
                         
                         activateTextbox(textbox);
                         
@@ -1370,6 +1589,8 @@
                                 parseInt(textbox.style.left), 
                                 parseInt(textbox.style.top)
                             );
+                            
+                            updateTextboxControlValues();
                         }
                         
                         function stopDrag() {
@@ -1384,108 +1605,209 @@
                         document.addEventListener('mouseleave', stopDrag);
                     });
                     
-                    // 文本框调整大小事件
-                    document.querySelectorAll(`#${box.id} .textbox-handle`).forEach(handle => {
-                        handle.addEventListener('mousedown', function(e) {
-                            e.stopPropagation();
-                            e.preventDefault();
+                    // 触摸事件支持
+                    textbox.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        if (e.target === deleteBtn) return;
+                        
+                        isDraggingTextbox = true;
+                        const touch = e.touches[0];
+                        const rect = textbox.getBoundingClientRect();
+                        dragOffsetX = touch.clientX - rect.left;
+                        dragOffsetY = touch.clientY - rect.top;
+                        
+                        activateTextbox(textbox);
+                        
+                        function drag(e) {
+                            if (!isDraggingTextbox) return;
                             
-                            isResizingTextbox = true;
-                            resizeDirection = this.className.split(' ')[1];
+                            const touch = e.touches[0];
+                            const newX = touch.clientX - dragOffsetX;
+                            const newY = touch.clientY - dragOffsetY;
                             
-                            const startX = e.clientX;
-                            const startY = e.clientY;
-                            const startLeft = textbox.offsetLeft;
-                            const startTop = textbox.offsetTop;
-                            const startWidth = textbox.offsetWidth;
-                            const startHeight = textbox.offsetHeight;
+                            const maxX = canvas.width - textbox.offsetWidth;
+                            const maxY = canvas.height - textbox.offsetHeight;
                             
-                            function resize(e) {
-                                if (!isResizingTextbox) return;
-                                
-                                const dx = e.clientX - startX;
-                                const dy = e.clientY - startY;
-                                
-                                let newLeft = startLeft;
-                                let newTop = startTop;
-                                let newWidth = startWidth;
-                                let newHeight = startHeight;
-                                
-                                // 根据调整方向计算新的位置和尺寸
-                                switch(resizeDirection) {
-                                    case 'resize-nw': // 左上角
-                                        newLeft = startLeft + dx;
-                                        newTop = startTop + dy;
-                                        newWidth = startWidth - dx;
-                                        newHeight = startHeight - dy;
-                                        break;
-                                    case 'resize-n': // 上边
-                                        newTop = startTop + dy;
-                                        newHeight = startHeight - dy;
-                                        break;
-                                    case 'resize-ne': // 右上角
-                                        newTop = startTop + dy;
-                                        newWidth = startWidth + dx;
-                                        newHeight = startHeight - dy;
-                                        break;
-                                    case 'resize-w': // 左边
-                                        newLeft = startLeft + dx;
-                                        newWidth = startWidth - dx;
-                                        break;
-                                    case 'resize-e': // 右边
-                                        newWidth = startWidth + dx;
-                                        break;
-                                    case 'resize-sw': // 左下角
-                                        newLeft = startLeft + dx;
-                                        newWidth = startWidth - dx;
-                                        newHeight = startHeight + dy;
-                                        break;
-                                    case 'resize-s': // 下边
-                                        newHeight = startHeight + dy;
-                                        break;
-                                    case 'resize-se': // 右下角
-                                        newWidth = startWidth + dx;
-                                        newHeight = startHeight + dy;
-                                        break;
-                                }
-                                
-                                // 确保最小尺寸
-                                if (newWidth < 50) newWidth = 50;
-                                if (newHeight < 30) newHeight = 30;
-                                
-                                // 应用新的位置和尺寸
-                                textbox.style.left = newLeft + 'px';
-                                textbox.style.top = newTop + 'px';
-                                textbox.style.width = newWidth + 'px';
-                                textbox.style.height = newHeight + 'px';
-                                
-                                // 更新文本框数组中的尺寸和位置
-                                updateTextboxSizeInArray(box.id, newWidth, newHeight);
-                                updateTextboxPositionInArray(box.id, newLeft, newTop);
-                            }
+                            textbox.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
+                            textbox.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
                             
-                            function stopResize() {
-                                isResizingTextbox = false;
-                                resizeDirection = null;
-                                document.removeEventListener('mousemove', resize);
-                                document.removeEventListener('mouseup', stopResize);
-                                document.removeEventListener('mouseleave', stopResize);
-                            }
+                            updateTextboxPositionInArray(
+                                box.id, 
+                                parseInt(textbox.style.left), 
+                                parseInt(textbox.style.top)
+                            );
                             
-                            document.addEventListener('mousemove', resize);
-                            document.addEventListener('mouseup', stopResize);
-                            document.addEventListener('mouseleave', stopResize);
-                        });
-                    });
+                            updateTextboxControlValues();
+                        }
+                        
+                        function stopDrag() {
+                            isDraggingTextbox = false;
+                            document.removeEventListener('touchmove', drag);
+                            document.removeEventListener('touchend', stopDrag);
+                        }
+                        
+                        document.addEventListener('touchmove', drag, { passive: false });
+                        document.addEventListener('touchend', stopDrag);
+                    }, { passive: false });
                     
                     // 点击激活
                     textbox.addEventListener('click', function(e) {
-                        if (e.target !== deleteBtn && !e.target.classList.contains('textbox-handle')) {
+                        if (e.target !== deleteBtn) {
                             activateTextbox(textbox);
                         }
                     });
+                    
+                    // 触摸激活
+                    textbox.addEventListener('touchstart', function(e) {
+                        if (e.target !== deleteBtn) {
+                            activateTextbox(textbox);
+                        }
+                    }, { passive: false });
                 });
             }
+            
+            // 文本框控制按钮事件
+            document.getElementById('increaseWidthBtn').addEventListener('click', function() {
+                if (activeTextbox) {
+                    const textboxId = activeTextbox.id;
+                    const index = textboxes.findIndex(box => box.id === textboxId);
+                    if (index !== -1) {
+                        const newWidth = textboxes[index].width + 10;
+                        textboxes[index].width = newWidth;
+                        activeTextbox.style.width = newWidth + 'px';
+                        updateTextboxControlValues();
+                        saveState();
+                    }
+                }
+            });
+            
+            document.getElementById('decreaseWidthBtn').addEventListener('click', function() {
+                if (activeTextbox) {
+                    const textboxId = activeTextbox.id;
+                    const index = textboxes.findIndex(box => box.id === textboxId);
+                    if (index !== -1) {
+                        const newWidth = Math.max(50, textboxes[index].width - 10);
+                        textboxes[index].width = newWidth;
+                        activeTextbox.style.width = newWidth + 'px';
+                        updateTextboxControlValues();
+                        saveState();
+                    }
+                }
+            });
+            
+            document.getElementById('increaseHeightBtn').addEventListener('click', function() {
+                if (activeTextbox) {
+                    const textboxId = activeTextbox.id;
+                    const index = textboxes.findIndex(box => box.id === textboxId);
+                    if (index !== -1) {
+                        const newHeight = textboxes[index].height + 10;
+                        textboxes[index].height = newHeight;
+                        activeTextbox.style.height = newHeight + 'px';
+                        updateTextboxControlValues();
+                        saveState();
+                    }
+                }
+            });
+            
+            document.getElementById('decreaseHeightBtn').addEventListener('click', function() {
+                if (activeTextbox) {
+                    const textboxId = activeTextbox.id;
+                    const index = textboxes.findIndex(box => box.id === textboxId);
+                    if (index !== -1) {
+                        const newHeight = Math.max(30, textboxes[index].height - 10);
+                        textboxes[index].height = newHeight;
+                        activeTextbox.style.height = newHeight + 'px';
+                        updateTextboxControlValues();
+                        saveState();
+                    }
+                }
+            });
+            
+            // 位置控制按钮
+            document.getElementById('moveUpBtn').addEventListener('click', function() {
+                if (activeTextbox) {
+                    const textboxId = activeTextbox.id;
+                    const index = textboxes.findIndex(box => box.id === textboxId);
+                    if (index !== -1) {
+                        const newY = Math.max(0, textboxes[index].y - 5);
+                        textboxes[index].y = newY;
+                        activeTextbox.style.top = newY + 'px';
+                        updateTextboxControlValues();
+                        saveState();
+                    }
+                }
+            });
+            
+            document.getElementById('moveDownBtn').addEventListener('click', function() {
+                if (activeTextbox) {
+                    const textboxId = activeTextbox.id;
+                    const index = textboxes.findIndex(box => box.id === textboxId);
+                    if (index !== -1) {
+                        const newY = Math.min(canvas.height - textboxes[index].height, textboxes[index].y + 5);
+                        textboxes[index].y = newY;
+                        activeTextbox.style.top = newY + 'px';
+                        updateTextboxControlValues();
+                        saveState();
+                    }
+                }
+            });
+            
+            document.getElementById('moveLeftBtn').addEventListener('click', function() {
+                if (activeTextbox) {
+                    const textboxId = activeTextbox.id;
+                    const index = textboxes.findIndex(box => box.id === textboxId);
+                    if (index !== -1) {
+                        const newX = Math.max(0, textboxes[index].x - 5);
+                        textboxes[index].x = newX;
+                        activeTextbox.style.left = newX + 'px';
+                        updateTextboxControlValues();
+                        saveState();
+                    }
+                }
+            });
+            
+            document.getElementById('moveRightBtn').addEventListener('click', function() {
+                if (activeTextbox) {
+                    const textboxId = activeTextbox.id;
+                    const index = textboxes.findIndex(box => box.id === textboxId);
+                    if (index !== -1) {
+                        const newX = Math.min(canvas.width - textboxes[index].width, textboxes[index].x + 5);
+                        textboxes[index].x = newX;
+                        activeTextbox.style.left = newX + 'px';
+                        updateTextboxControlValues();
+                        saveState();
+                    }
+                }
+            });
+            
+            // 旋转控制按钮
+            document.getElementById('rotateCWBtn').addEventListener('click', function() {
+                if (activeTextbox) {
+                    const textboxId = activeTextbox.id;
+                    const index = textboxes.findIndex(box => box.id === textboxId);
+                    if (index !== -1) {
+                        const newRotation = (textboxes[index].rotation + 15) % 360;
+                        textboxes[index].rotation = newRotation;
+                        activeTextbox.style.transform = `rotate(${newRotation}deg)`;
+                        updateTextboxControlValues();
+                        saveState();
+                    }
+                }
+            });
+            
+            document.getElementById('rotateCCWBtn').addEventListener('click', function() {
+                if (activeTextbox) {
+                    const textboxId = activeTextbox.id;
+                    const index = textboxes.findIndex(box => box.id === textboxId);
+                    if (index !== -1) {
+                        const newRotation = (textboxes[index].rotation - 15 + 360) % 360;
+                        textboxes[index].rotation = newRotation;
+                        activeTextbox.style.transform = `rotate(${newRotation}deg)`;
+                        updateTextboxControlValues();
+                        saveState();
+                    }
+                }
+            });
             
             // 鼠标/触摸事件处理
             function startDrawing(e) {
@@ -1580,6 +1902,7 @@
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     textboxes = [];
                     document.querySelectorAll('.textbox').forEach(box => box.remove());
+                    deactivateAllTextboxes();
                     saveState();
                 }
             });
@@ -1618,15 +1941,31 @@
                 
                 // 绘制所有文本框内容
                 textboxes.forEach(box => {
+                    tempCtx.save();
+                    
+                    // 移动到文本框中心
+                    tempCtx.translate(box.x + box.width/2, box.y + box.height/2);
+                    
+                    // 应用旋转
+                    tempCtx.rotate(box.rotation * Math.PI / 180);
+                    
+                    // 设置字体和颜色
                     tempCtx.font = `${box.fontSize}px Arial`;
                     tempCtx.fillStyle = box.color;
-                    tempCtx.textBaseline = 'top';
+                    tempCtx.textBaseline = 'middle';
+                    tempCtx.textAlign = 'center';
                     
                     // 处理换行文本
                     const lines = box.content.split('\n');
+                    const lineHeight = box.fontSize;
+                    const totalHeight = lines.length * lineHeight;
+                    const startY = -totalHeight/2 + lineHeight/2;
+                    
                     lines.forEach((line, index) => {
-                        tempCtx.fillText(line, box.x + 5, box.y + 5 + (index * box.fontSize));
+                        tempCtx.fillText(line, 0, startY + (index * lineHeight));
                     });
+                    
+                    tempCtx.restore();
                 });
                 
                 // 创建下载链接
